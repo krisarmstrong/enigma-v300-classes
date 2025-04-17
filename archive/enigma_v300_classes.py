@@ -1,62 +1,49 @@
-#!/usr/bin/env python3
+# File: enigma_v300_classes.py
+# Author: Kris Armstrong
+# Version: 3.0.0
+# Last Modified: 2025-04-12
+# Description: Python implementation of Fluke option key calculator using classes with enhanced menu.
+# License: MIT
+
 """
-Project Title: Enigma V300 Classes
+MIT License
 
-Calculates and validates Fluke option keys using EnigmaC and Enigma2C ciphers.
+Copyright (c) 2025 Kris Armstrong
 
-Implements object-oriented design with EnigmaC (NetTool, 10-digit serial),
-Enigma2C (other Fluke products, 7-digit serial), and EnigmaMenu for user interaction.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Author: Kris Armstrong
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 """
+
+"""Calculate and validate Fluke option keys using EnigmaC and Enigma2C ciphers with classes."""
 
 import sys
-import argparse
-import logging
-import logging.handlers
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple
 
-__version__ = "3.0.1"
-
-# Configure logging
-logger = logging.getLogger(__name__)
-
-def setup_logging(verbose: bool, logfile: Optional[str] = None) -> None:
-    """Configure logging with console and optional file handlers."""
-    level = logging.DEBUG if verbose else logging.INFO
-    formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
-
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-    logger.handlers = [console_handler]
-    logger.setLevel(level)
-
-    if logfile:
-        file_handler = logging.handlers.RotatingFileHandler(
-            logfile, maxBytes=10*1024*1024, backupCount=5
-        )
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
 
 class EnigmaC:
-    """Handle EnigmaC cipher operations for NetTool (10-digit serial)."""
+    """Class to handle EnigmaC cipher operations for NetTool (10-digit serial)."""
 
     SOFTWARE_VERSION: str = "3.0.0"
     SERIAL_NUMBER_SIZE_ENIGMAC: int = 10
     ENIGMA_C_ROTOR: List[int] = [5, 4, 14, 11, 1, 8, 10, 13, 7, 3, 15, 0, 2, 12, 9, 6]
 
     def encrypt(self, input_key: str) -> str:
-        """Encrypt the input key using EnigmaC cipher.
-
-        Args:
-            input_key: Hex string to encrypt.
-
-        Returns:
-            Encrypted hex string.
-
-        Raises:
-            ValueError: If input contains non-hex characters.
-        """
+        """Encrypt the input key using EnigmaC cipher."""
         output_key = ""
         output_value = 0
         for index, char in enumerate(input_key.lower()):
@@ -68,17 +55,7 @@ class EnigmaC:
         return output_key
 
     def decrypt(self, input_key: str) -> str:
-        """Decrypt the input key using EnigmaC cipher.
-
-        Args:
-            input_key: Hex string to decrypt.
-
-        Returns:
-            Decrypted hex string.
-
-        Raises:
-            ValueError: If input contains non-hex characters.
-        """
+        """Decrypt the input key using EnigmaC cipher."""
         output_key = ""
         xor_value = 0
         for index, char in enumerate(input_key.lower()):
@@ -93,19 +70,7 @@ class EnigmaC:
         return output_key
 
     def check_option_key(self, option: int, key: str, serial_number: str) -> bool:
-        """Check if the option key is valid.
-
-        Args:
-            option: Option number to validate.
-            key: Option key to check.
-            serial_number: Device serial number.
-
-        Returns:
-            True if key is valid, False otherwise.
-
-        Raises:
-            ValueError: If key is empty.
-        """
+        """Check if the option key is valid."""
         if not key:
             raise ValueError("Key cannot be empty")
         if key == "bladerules":
@@ -117,8 +82,9 @@ class EnigmaC:
         opt = int(decrypted_key[10:12], 10)
         return opt == option
 
+
 class Enigma2C:
-    """Handle Enigma2C cipher operations for other Fluke products (7-digit serial)."""
+    """Class to handle Enigma2C cipher operations for other Fluke products (7-digit serial)."""
 
     PRODUCT_CODE_SIZE: int = 4
     OPTION_CODE_SIZE: int = 3
@@ -130,22 +96,14 @@ class Enigma2C:
     OPTION_LOCATION: int = CHECK_SUM_SIZE + PRODUCT_CODE_SIZE + SERIAL_NUMBER_SIZE_ENIGMA2
     MAX_CHECK_SUM: int = 26000
     ENIGMA2_E_ROTOR_10: List[int] = [5, 4, 1, 8, 7, 3, 0, 2, 9, 6]
-    ENIGMA2_E_ROTOR_26: List[int] = [16, 8, 25, 5, 23, 21, 18, 17, 2, 1, 7, 24, 15, 11, 9, 6, 3, 0, 19, 12, 22, 14, 10, 4, 20, 13]
+    ENIGMA2_E_ROTOR_26: List[int] = [16, 8, 25, 5, 23, 21, 18, 17, 2, 1, 7, 24, 15, 11, 9, 6, 3, 0, 19, 12, 22, 14, 10,
+                                     4, 20, 13]
     ENIGMA2_D_ROTOR_10: List[int] = [6, 2, 7, 5, 1, 0, 9, 4, 3, 8]
-    ENIGMA2_D_ROTOR_26: List[int] = [17, 9, 8, 16, 23, 3, 15, 10, 1, 14, 22, 13, 19, 25, 21, 12, 0, 7, 6, 18, 24, 5, 20, 4, 11, 2]
+    ENIGMA2_D_ROTOR_26: List[int] = [17, 9, 8, 16, 23, 3, 15, 10, 1, 14, 22, 13, 19, 25, 21, 12, 0, 7, 6, 18, 24, 5, 20,
+                                     4, 11, 2]
 
     def encrypt(self, input_key: str) -> str:
-        """Encrypt the input key using Enigma2C cipher.
-
-        Args:
-            input_key: Alphanumeric string to encrypt.
-
-        Returns:
-            Encrypted string.
-
-        Raises:
-            ValueError: If input key length is invalid.
-        """
+        """Encrypt the input key using Enigma2C cipher."""
         if len(input_key) != self.KEY_LENGTH:
             raise ValueError(f"Input key length must be {self.KEY_LENGTH}")
         output_key = list(input_key)
@@ -162,22 +120,13 @@ class Enigma2C:
             if output_key[i].isdigit():
                 output_key[i] = str(self.ENIGMA2_E_ROTOR_10[(temp_sum + self.MAX_CHECK_SUM - running_sum) % 10])
             else:
-                output_key[i] = chr(ord("A") + self.ENIGMA2_E_ROTOR_26[(temp_sum + self.MAX_CHECK_SUM - running_sum) % 26])
+                output_key[i] = chr(
+                    ord("A") + self.ENIGMA2_E_ROTOR_26[(temp_sum + self.MAX_CHECK_SUM - running_sum) % 26])
             running_sum += i + temp_sum + (i * temp_sum)
         return "".join(output_key)
 
     def decrypt(self, input_key: str) -> str:
-        """Decrypt the input key using Enigma2C cipher.
-
-        Args:
-            input_key: Alphanumeric string to decrypt.
-
-        Returns:
-            Decrypted string or empty if invalid.
-
-        Raises:
-            ValueError: If input key length is invalid.
-        """
+        """Decrypt the input key using Enigma2C cipher."""
         if len(input_key) != self.KEY_LENGTH:
             raise ValueError(f"Input key length must be {self.KEY_LENGTH}")
         output_key = list(input_key)
@@ -194,18 +143,7 @@ class Enigma2C:
         return "".join(output_key) if checksum % 100 == 0 else ""
 
     def check_option_key(self, option: int, key: str) -> bool:
-        """Check if the option key is valid.
-
-        Args:
-            option: Option number to validate.
-            key: Option key to check.
-
-        Returns:
-            True if key is valid, False otherwise.
-
-        Raises:
-            ValueError: If key is empty.
-        """
+        """Check if the option key is valid."""
         if not key:
             raise ValueError("Key cannot be empty")
         decrypted_key = self.decrypt(key)
@@ -214,8 +152,9 @@ class Enigma2C:
         opt = int(decrypted_key[self.OPTION_LOCATION: self.OPTION_LOCATION + self.OPTION_CODE_SIZE])
         return opt == option
 
+
 class EnigmaMenu:
-    """Handle menu interactions for Fluke option key calculator."""
+    """Class to handle menu interactions."""
 
     PRODUCT_TABLE: List[Dict[str, str]] = [
         {"code": "3001", "abbr": "NTs2", "name": "NetTool Series II"},
@@ -277,36 +216,23 @@ class EnigmaMenu:
         self.enigma2_c = Enigma2C()
 
     def get_menu_choice(self, prompt: str, min_val: int, max_val: int) -> int:
-        """Get a valid menu choice from user.
-
-        Args:
-            prompt: Prompt to display.
-            min_val: Minimum valid choice.
-            max_val: Maximum valid choice.
-
-        Returns:
-            Selected choice.
-        """
+        """Get a valid menu choice."""
         while True:
             try:
                 choice = int(input(prompt))
                 if min_val <= choice <= max_val:
                     return choice
-                logger.warning("Invalid choice, please try again.")
+                print("Invalid choice, please try again.")
             except ValueError:
-                logger.warning("Invalid input, please enter a number.")
+                print("Invalid input, please enter a number.")
 
     def product_code_menu(self) -> Tuple[str, str]:
-        """Display product menu and get codes.
-
-        Returns:
-            Tuple of product code and option code, or empty strings if cancelled.
-        """
-        logger.info("--- Product Code Menu ---")
+        """Display product menu and get codes."""
+        print("\n--- Product Code Menu ---")
         for i, product in enumerate(self.PRODUCT_TABLE, 1):
-            logger.info(f"{i}. {product['code']} - {product['name']}")
-        logger.info("8. Custom Product Code")
-        logger.info("0. Exit")
+            print(f"{i}. {product['code']} - {product['name']}")
+        print("8. Custom Product Code")
+        print("0. Exit")
 
         choice = self.get_menu_choice("Choose your option: ", 0, 8)
         if choice == 0:
@@ -317,27 +243,27 @@ class EnigmaMenu:
                 product_code = input("Enter Product Code (4 digits): ").strip()[:4]
                 if len(product_code) == 4 and product_code.isdigit():
                     break
-                logger.warning("Product code must be 4 digits.")
+                print("Product code must be 4 digits.")
             while True:
                 option_code = input("Enter Option Code (3 digits): ").strip()[:3]
                 if len(option_code) == 3 and option_code.isdigit():
                     break
-                logger.warning("Option code must be 3 digits.")
+                print("Option code must be 3 digits.")
             return product_code, option_code
 
         product = self.PRODUCT_TABLE[choice - 1]
         product_code = product["code"]
         options = self.PRODUCT_OPTIONS.get(product_code, {})
         if not options:
-            logger.warning(f"No options defined for {product['name']}.")
+            print(f"No options defined for {product['name']}.")
             return "", ""
 
-        logger.info(f"--- Options for {product['name']} ---")
+        print(f"\n--- Options for {product['name']} ---")
         sorted_options = sorted(options.items(), key=lambda x: x[0])
         for i, (code, desc) in enumerate(sorted_options, 1):
-            logger.info(f"{i}. {code} - {desc}")
-        logger.info("8. Custom Option Code")
-        logger.info("0. Exit")
+            print(f"{i}. {code} - {desc}")
+        print("8. Custom Option Code")
+        print("0. Exit")
 
         opt_choice = self.get_menu_choice("Choose your option: ", 0, 8)
         if opt_choice == 0:
@@ -348,46 +274,35 @@ class EnigmaMenu:
                 option_code = input("Enter Option Code (3 digits): ").strip()[:3]
                 if len(option_code) == 3 and option_code.isdigit():
                     break
-                logger.warning("Option code must be 3 digits.")
+                print("Option code must be 3 digits.")
         else:
             option_code = sorted_options[opt_choice - 1][0]
         return product_code, option_code
 
     def print_option_key(self, option_key: str) -> None:
-        """Log the option key with formatting.
-
-        Args:
-            option_key: Key to display.
-        """
-        output = "Option Key:"
+        """Print the option key with formatting."""
+        print("Option Key:", end="")
         for i, char in enumerate(option_key):
             if i % 4 == 0:
-                output += " "
-            output += char
-        logger.info(output)
+                print(" ", end="")
+            print(char, end="")
+        print()
 
     def calculate_nettool_option_key(self, serial_number: str, option_number: int) -> None:
-        """Calculate NetTool option key.
-
-        Args:
-            serial_number: Device serial number.
-            option_number: Option number to encode.
-
-        Raises:
-            ValueError: If serial number is invalid.
-        """
+        """Calculate NetTool option key."""
         if not serial_number:
             while len(serial_number) != self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC:
-                serial_number = input("Enter Serial Number (10 digits): ").strip()[:self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC]
+                serial_number = input("Enter Serial Number (10 digits): ").strip()[
+                                :self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC]
                 if len(serial_number) == self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC and serial_number.isdigit():
                     break
-                logger.warning("Serial number must be 10 digits.")
+                print("Serial number must be 10 digits.")
 
         if len(serial_number) != self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC or not serial_number.isdigit():
             raise ValueError("Serial number must be 10 digits")
 
         if option_number < 0:
-            logger.info("NetTool Options: 0=Inline 1=Reports/Ping 3=Personal 4=VoIP 5=SwitchWizard")
+            print("\nNetTool Options: 0=Inline 1=Reports/Ping 3=Personal 4=VoIP 5=SwitchWizard")
             option_input = input("Enter Option Number (1 digit): ").strip()[:1]
             option_number = int(option_input) if option_input.isdigit() else 0
 
@@ -397,33 +312,26 @@ class EnigmaMenu:
         input_key = serial_number + str(option_number) + "0"
         reversed_key = input_key[::-1]
 
-        logger.info("Encrypting with Enigma 1...")
+        print("\nEncrypting with Enigma 1...")
         output_key = self.enigma_c.encrypt(reversed_key)
         self.print_option_key(output_key)
 
-    def check_nettool_option_key(self, option_key: str, serial_number: str = "") -> None:
-        """Check NetTool option key validity.
-
-        Args:
-            option_key: Key to validate.
-            serial_number: Device serial number (optional).
-
-        Raises:
-            ValueError: If inputs are invalid.
-        """
-        if not serial_number:
-            while len(serial_number) != self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC:
-                serial_number = input("Enter Serial Number (10 digits): ").strip()[:self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC]
-                if len(serial_number) == self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC and serial_number.isdigit():
-                    break
-                logger.warning("Serial number must be 10 digits.")
+    def check_nettool_option_key(self, option_key: str) -> None:
+        """Check NetTool option key validity."""
+        serial_number = ""
+        while len(serial_number) != self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC:
+            serial_number = input("Enter Serial Number (10 digits): ").strip()[
+                            :self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC]
+            if len(serial_number) == self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC and serial_number.isdigit():
+                break
+            print("Serial number must be 10 digits.")
 
         if not option_key:
             while len(option_key) != 12:
                 option_key = input("Enter Option Key (12 hex digits): ").strip()[:12]
                 if len(option_key) == 12 and all(c in "0123456789abcdefABCDEF" for c in option_key):
                     break
-                logger.warning("Option key must be 12 hex digits.")
+                print("Option key must be 12 hex digits.")
 
         if len(option_key) != 12 or not all(c in "0123456789abcdefABCDEF" for c in option_key):
             raise ValueError("Option key must be 12 hex digits")
@@ -433,101 +341,86 @@ class EnigmaMenu:
         if option_number < 0 or option_number > 9:
             option_number = 0
 
-        logger.info("EnigmaC::checkOptionKey()...")
-        logger.debug(f"serialNum: {serial_number}")
-        logger.debug(f"optionKey: {option_key}")
-        logger.debug(f"optionNum: {hex(option_number)}")
+        print("\nEnigmaC::checkOptionKey()...")
+        print(f"serialNum: {serial_number}")
+        print(f"optionKey: {option_key}")
+        print(f"optionNum: {hex(option_number)}")
         result = self.enigma_c.check_option_key(option_number, option_key, serial_number)
-        logger.info(f"Option {'valid' if result else 'invalid'}")
+        print(f"Option {'valid' if result else 'invalid'}")
 
-    def calculate_enigma2_option_key(self, serial_number: str, option_number: int, product_code: int, assume_escope: bool) -> None:
-        """Calculate Enigma2 option key.
-
-        Args:
-            serial_number: Device serial number.
-            option_number: Option number to encode.
-            product_code: Product code.
-            assume_escope: Assume EtherScope if True.
-
-        Raises:
-            ValueError: If serial number is invalid.
-        """
+    def calculate_enigma2_option_key(
+            self, serial_number: str, option_number: int, product_code: int, assume_escope: bool
+    ) -> None:
+        """Calculate Enigma2 option key."""
         product_code_str = str(product_code).zfill(4) if product_code >= 0 else ""
         option_str = str(option_number).zfill(3) if option_number >= 0 else ""
 
         if not serial_number:
             while len(serial_number) != self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2:
-                serial_number = input("Enter Serial Number (7 digits): ").strip()[:self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2]
+                serial_number = input("Enter Serial Number (7 digits): ").strip()[
+                                :self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2]
                 if len(serial_number) == self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2 and serial_number.isdigit():
                     break
-                logger.warning("Serial number must be 7 digits.")
+                print("Serial number must be 7 digits.")
 
         if len(serial_number) != self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2 or not serial_number.isdigit():
             raise ValueError("Serial number must be 7 digits")
 
-        logger.debug(f"SerialNum= {serial_number}")
+        print(f"SerialNum= {serial_number}")
 
         if not product_code_str or not option_str:
             product_code_str, option_str = self.product_code_menu()
             if not product_code_str:
-                logger.info("Operation cancelled.")
+                print("Operation cancelled.")
                 return
 
         input_key = "00" + product_code_str + serial_number + option_str
 
-        logger.info("Encrypting with Enigma 2...")
+        print("\nEncrypting with Enigma 2...")
         output_key = self.enigma2_c.encrypt(input_key)
         self.print_option_key(output_key)
 
     def check_enigma2_option_key(self, option_key: str) -> None:
-        """Decrypt and display Enigma2 option key details.
-
-        Args:
-            option_key: Key to validate.
-
-        Raises:
-            ValueError: If option key is invalid.
-        """
+        """Decrypt and display Enigma2 option key details."""
         if not option_key:
             while len(option_key) != 16:
                 option_key = input("Enter Option Key (16 characters): ").strip()[:16]
                 if len(option_key) == 16 and option_key.isalnum():
                     break
-                logger.warning("Option key must be 16 alphanumeric characters.")
+                print("Option key must be 16 alphanumeric characters.")
 
         if len(option_key) != 16 or not option_key.isalnum():
             raise ValueError("Option key must be 16 alphanumeric characters")
 
-        logger.info("Decrypting with Enigma 2...")
+        print("Decrypting with Enigma 2...")
         decrypted_key = self.enigma2_c.decrypt(option_key)
         if not decrypted_key:
             raise ValueError("Decryption failed: invalid checksum")
 
-        product_code = decrypted_key[self.enigma2_c.PRODUCT_LOCATION: self.enigma2_c.PRODUCT_LOCATION + self.enigma2_c.PRODUCT_CODE_SIZE]
-        logger.info(f"Product Code: {product_code} -> ", end="")
+        product_code = decrypted_key[
+                       self.enigma2_c.PRODUCT_LOCATION: self.enigma2_c.PRODUCT_LOCATION + self.enigma2_c.PRODUCT_CODE_SIZE]
+        print(f"Product Code: {product_code} -> ", end="")
         found = False
         for product in self.PRODUCT_TABLE:
             if product_code == product["code"]:
-                logger.info(product["name"])
+                print(product["name"])
                 found = True
                 break
         if not found:
-            logger.info("Unknown")
-        logger.info(f"SerialNumber: {decrypted_key[self.enigma2_c.SERIAL_LOCATION: self.enigma2_c.SERIAL_LOCATION + self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2]}")
-        logger.info(f"OptionNumber: {decrypted_key[self.enigma2_c.OPTION_LOCATION: self.enigma2_c.OPTION_LOCATION + self.enigma2_c.OPTION_CODE_SIZE]}")
+            print("Unknown")
+        print(
+            f"SerialNumber: {decrypted_key[self.enigma2_c.SERIAL_LOCATION: self.enigma2_c.SERIAL_LOCATION + self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2]}")
+        print(
+            f"OptionNumber: {decrypted_key[self.enigma2_c.OPTION_LOCATION: self.enigma2_c.OPTION_LOCATION + self.enigma2_c.OPTION_CODE_SIZE]}")
 
     def main_menu(self) -> bool:
-        """Display main menu and handle choices.
-
-        Returns:
-            True to continue, False to exit.
-        """
-        logger.info(f"--- Enigma {self.enigma_c.SOFTWARE_VERSION} Main Menu ---")
-        logger.info("1. Generate NetTool 10/100 Option Key")
-        logger.info("2. Check NetTool 10/100 Option Key")
-        logger.info("3. Generate Option Key for Other Fluke Products")
-        logger.info("4. Decrypt Option Key for Other Fluke Products")
-        logger.info("0. Exit")
+        """Display main menu and handle choices."""
+        print(f"\n--- Enigma {self.enigma_c.SOFTWARE_VERSION} Main Menu ---")
+        print("1. Generate NetTool 10/100 Option Key")
+        print("2. Check NetTool 10/100 Option Key")
+        print("3. Generate Option Key for Other Fluke Products")
+        print("4. Decrypt Option Key for Other Fluke Products")
+        print("0. Exit")
 
         choice = self.get_menu_choice("Choose your option: ", 0, 4)
         if choice == 0:
@@ -543,54 +436,78 @@ class EnigmaMenu:
             elif choice == 4:
                 self.check_enigma2_option_key("")
         except Exception as e:
-            logger.error(f"Error: {e}")
+            print(f"Error: {e}")
         return True
 
-def main() -> None:
+
+def main():
     """Main function to handle command-line or interactive mode."""
-    parser = argparse.ArgumentParser(
-        description="Fluke option key calculator for NetTool and other products.",
-        epilog="Examples:\n"
-               "  python enigma_v300_classes.py -n 0003333016 4 --logfile enigma.log\n"
-               "  python enigma_v300_classes.py -e 0000607 7 6963 --verbose",
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    parser.add_argument("-n", "--nettool", nargs=2, metavar=("SERIAL", "OPTION"),
-                        help="Generate NetTool option key (10-digit serial, option number)")
-    parser.add_argument("-x", "--check-nettool", nargs=2, metavar=("KEY", "SERIAL"),
-                        help="Check NetTool option key (12-hex key, 10-digit serial)")
-    parser.add_argument("-e", "--encrypt", nargs=3, metavar=("SERIAL", "OPTION", "PRODUCT"),
-                        help="Generate option key for other products (7-digit serial, option, product code)")
-    parser.add_argument("-d", "--decrypt", metavar="KEY",
-                        help="Decrypt option key for other products (16-char key)")
-    parser.add_argument("--verbose", action="store_true", help="Enable debug logging")
-    parser.add_argument("--logfile", help="Log to file (rotates at 10MB)")
-
-    args = parser.parse_args()
-    setup_logging(args.verbose, args.logfile)
-
     menu = EnigmaMenu()
+    serial_number: str = ""
+    option_key: str = ""
+    selection: int = 0
+    option_number: int = -1
+    product_code: int = -1
+    assume_escope: bool = False
+
     try:
-        if args.nettool:
-            serial, option = args.nettool
-            menu.calculate_nettool_option_key(serial, int(option))
-        elif args.check_nettool:
-            key, serial = args.check_nettool
-            menu.check_nettool_option_key(key, serial)
-        elif args.encrypt:
-            serial, option, product = args.encrypt
-            menu.calculate_enigma2_option_key(serial, int(option), int(product), False)
-        elif args.decrypt:
-            menu.check_enigma2_option_key(args.decrypt)
-        else:
-            while menu.main_menu():
-                pass
-    except KeyboardInterrupt:
-        logger.info("Received KeyboardInterrupt, shutting down gracefully...")
-        sys.exit(0)
+        if len(sys.argv) > 1:
+            if sys.argv[1] in ["?", "-?"]:
+                print(
+                    f"usage: {sys.argv[0]} [-d|-e|-n|-x] [optionKey|serialNo] [optionNo] [productCode]\n"
+                    "where,\n"
+                    "-d is decrypt EtherScope option key\n"
+                    "-e is encrypt EtherScope option key\n"
+                    "-l is encrypt LinkRunner Pro option key\n"
+                    "-n is calculate NetTool option key\n"
+                    "-x is check NetTool option key"
+                )
+                sys.exit(1)
+            elif sys.argv[1] == "-n":
+                selection = 1
+            elif sys.argv[1] == "-x":
+                selection = 2
+            elif sys.argv[1] == "-e":
+                selection = 3
+                product_code = 6963
+                assume_escope = True
+            elif sys.argv[1] == "-l":
+                selection = 3
+                product_code = 7001
+            elif sys.argv[1] == "-d":
+                selection = 4
+            else:
+                selection = int(sys.argv[1])
+
+            if len(sys.argv) > 2:
+                if selection == 4:
+                    option_key = sys.argv[2][:16]
+                elif selection == 2:
+                    option_key = sys.argv[2][:12]
+                else:
+                    serial_number = sys.argv[2][:10 if selection == 1 else 7]
+                if len(sys.argv) > 3:
+                    option_number = int(sys.argv[3])
+                if len(sys.argv) > 4:
+                    product_code = int(sys.argv[4])
+
+        if selection >= 1 and selection <= 4:
+            if selection == 1:
+                menu.calculate_nettool_option_key(serial_number, option_number)
+            elif selection == 2:
+                menu.check_nettool_option_key(option_key)
+            elif selection == 3:
+                menu.calculate_enigma2_option_key(serial_number, option_number, product_code, assume_escope)
+            elif selection == 4:
+                menu.check_enigma2_option_key(option_key)
+            sys.exit(0)
+
+        while menu.main_menu():
+            pass
     except Exception as e:
-        logger.error(f"Fatal error: {e}")
+        print(f"Error: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
